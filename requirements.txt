@@ -1,0 +1,9 @@
+streamlit
+pandas
+numpy
+plotly
+requests
+folium
+streamlit-folium
+reportlab
+Pillow
