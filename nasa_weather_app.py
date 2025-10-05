@@ -570,7 +570,7 @@ def get_event_specific_recommendations(event_type, analysis_data):
         })
 
     # GENİŞLETİLMİŞ ETKİNLİK BAZLI ÖNERİLER - EXPANDED EVENT-SPECIFIC RECOMMENDATIONS
-    event_recommendations = {
+    event_recommendations_tr = {
         "Düğün": {
             "low": [
                 "Mükemmel düğün havası! Açık alanda tören için ideal koşullar",
@@ -718,13 +718,179 @@ def get_event_specific_recommendations(event_type, analysis_data):
         }
     }
 
-    # Add event-specific recommendations
-    if event_type in event_recommendations:
-        event_recs = event_recommendations[event_type][risk_level]
+    event_recommendations_en = {
+        "Wedding": {
+            "low": [
+                "Perfect wedding weather! Ideal conditions for outdoor ceremony",
+                "Great opportunity for outdoor photography",
+                "Comfortable environment for guests",
+                "Green light for outdoor reception"
+            ],
+            "medium": [
+                "Have an indoor backup plan, weather may change",
+                "Consider weather conditions for dress and suit selections",
+                "Have umbrellas and light jackets available for guests",
+                "Plan both indoor and outdoor photography options"
+            ],
+            "high": [
+                "DEFINITELY implement indoor backup plan",
+                "Consider shortening the wedding program",
+                "Take air conditioning/heating measures for guest comfort",
+                "Consider transportation weather conditions"
+            ]
+        },
+        "Concert": {
+            "low": [
+                "Great concert weather! Perfect for outdoor stage",
+                "Ideal wind conditions for sound quality",
+                "Maximum audience comfort",
+                "Suitable for long performances"
+            ],
+            "medium": [
+                "Protect stage equipment with protective covers",
+                "Optimize sound system according to wind direction",
+                "Consider shades in audience area",
+                "Take extra electrical safety measures"
+            ],
+            "high": [
+                "Consider canceling concert or moving indoors",
+                "Protect electrical equipment from rain",
+                "Prepare emergency evacuation plan for audience safety",
+                "Plan shorter program and early ending"
+            ]
+        },
+        "Festival": {
+            "low": [
+                "Perfect weather conditions for festival!",
+                "Suitable for all-day outdoor activities",
+                "Ideal for food and beverage stands",
+                "High attendance expected"
+            ],
+            "medium": [
+                "Prepare waterproof flooring for tent areas",
+                "Create emergency rain plan",
+                "Protect electrical lines with insulation",
+                "Increase first aid stations"
+            ],
+            "high": [
+                "Seriously consider postponing the festival",
+                "Cancel all outdoor activities",
+                "Increase security team",
+                "Activate emergency communication plan"
+            ]
+        },
+        "Sports Event": {
+            "low": [
+                "Ideal conditions for sports competitions",
+                "Maximum athlete performance",
+                "Maximum spectator comfort",
+                "Suitable for long competitions"
+            ],
+            "medium": [
+                "Continuously monitor field conditions",
+                "Increase break frequency",
+                "Set up additional water stations for spectators",
+                "Provide schedule flexibility based on weather"
+            ],
+            "high": [
+                "Postpone or cancel the competition",
+                "Prioritize athlete health",
+                "Increase spectator safety measures",
+                "Implement alternative indoor venue plan"
+            ]
+        },
+        "Outdoor Party": {
+            "low": [
+                "Perfect party weather! All plans can be implemented",
+                "Ideal for outdoor decorations",
+                "Guests can socialize comfortably",
+                "Party can continue until night hours"
+            ],
+            "medium": [
+                "Have backup tents or umbrellas",
+                "Protect music equipment with covers",
+                "Prefer light foods",
+                "Consider limiting number of guests"
+            ],
+            "high": [
+                "Move party indoors",
+                "Plan short-term program",
+                "Inform guests in advance",
+                "Suggest alternative date"
+            ]
+        },
+        "Picnic": {
+            "low": [
+                "Great picnic weather! Enjoyable time in nature",
+                "Suitable conditions for open fire",
+                "Long-term outdoor activities possible",
+                "Perfect lighting for photography"
+            ],
+            "medium": [
+                "Choose high and protected areas for picnic location",
+                "Store food in closed containers",
+                "Have emergency tent available",
+                "Keep schedule flexible"
+            ],
+            "high": [
+                "Cancel picnic or move indoors",
+                "Absolutely no open fire",
+                "Be careful of slipping risk on wet ground",
+                "Plan alternative activity"
+            ]
+        },
+        "Business Meeting": {
+            "low": [
+                "Ideal conditions for productive outdoor meeting",
+                "Opportunity to develop creative ideas in natural environment",
+                "High participant motivation",
+                "Suitable for long sessions"
+            ],
+            "medium": [
+                "Arrange backup indoor venue",
+                "Take protective measures for electronic devices",
+                "Backup presentation equipment",
+                "Optimize meeting duration"
+            ],
+            "high": [
+                "Definitely move meeting indoors",
+                "Offer video conference alternative",
+                "Replan participant transportation",
+                "Consider postponing meeting"
+            ]
+        },
+        "Other": {
+            "low": ["Perfect conditions - implement your plans with confidence"],
+            "medium": ["Be careful - make backup plans"],
+            "high": ["Risky conditions - implement alternative plan"]
+        }
+    }
+
+    # Add event-specific recommendations based on language
+    event_recommendations = event_recommendations_tr if lang_code == "tr" else event_recommendations_en
+    
+    # Map event type names between languages
+    event_type_mapping = {
+        "tr": {
+            "Düğün": "Düğün", "Konser": "Konser", "Spor Etkinliği": "Spor Etkinliği",
+            "Festival": "Festival", "Açık Hava Partisi": "Açık Hava Partisi",
+            "Piknik": "Piknik", "İş Toplantısı": "İş Toplantısı", "Diğer": "Diğer"
+        },
+        "en": {
+            "Wedding": "Wedding", "Concert": "Concert", "Sports Event": "Sports Event",
+            "Festival": "Festival", "Outdoor Party": "Outdoor Party",
+            "Picnic": "Picnic", "Business Meeting": "Business Meeting", "Other": "Other"
+        }
+    }
+    
+    current_event_type = event_type_mapping[lang_code].get(event_type, "Other")
+    
+    if current_event_type in event_recommendations:
+        event_recs = event_recommendations[current_event_type][risk_level]
         recommendations.append({
             'type': 'info',
-            'title': f'🎪 {event_type.upper()} ÖZEL ÖNERİLER' if lang_code == "tr" else f'🎪 {event_type.upper()} SPECIFIC RECOMMENDATIONS',
-            'message': f'{event_type} için {risk_level} risk seviyesine göre öneriler:' if lang_code == "tr" else f'Recommendations for {event_type} at {risk_level} risk level:',
+            'title': f'🎪 {current_event_type.upper()} { "ÖZEL ÖNERİLER" if lang_code == "tr" else "SPECIFIC RECOMMENDATIONS"}',
+            'message': f'{current_event_type} için {risk_level} risk seviyesine göre öneriler:' if lang_code == "tr" else f'Recommendations for {current_event_type} at {risk_level} risk level:',
             'details': event_recs
         })
     
