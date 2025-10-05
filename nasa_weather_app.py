@@ -190,7 +190,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Get current date for reference
+# Get current date for reference - HER ZAMAN GÜNCEL TARİH
 today = date.today()
 three_months_later = today + timedelta(days=90)
 ten_years_ago = today - timedelta(days=365*10)
@@ -378,6 +378,15 @@ def get_wind_risk_level(wind_speed):
     else:
         return 'high'
 
+def get_precipitation_risk_level(precip):
+    """Determine risk level based on precipitation"""
+    if precip < 1.0:
+        return 'low'
+    elif precip < 5.0:
+        return 'medium'
+    else:
+        return 'high'
+
 def get_simulation_analysis_for_date(lat, lon, selected_date, event_type):
     """Use simulation if NASA data is unavailable, incorporating THI and wind speed"""
     st.info("🔬 Using simulation data" if lang_code == "en" else "🔬 Simülasyon verileri kullanılıyor")
@@ -438,8 +447,10 @@ def get_event_specific_recommendations(event_type, analysis_data):
     precip = analysis_data['precipitation']
     thi = analysis_data['thi']
     wind_speed = analysis_data['wind_speed']
+    temp = analysis_data['temperature']
     risk_level = analysis_data['risk_level']
     wind_risk_level = get_wind_risk_level(wind_speed)
+    precip_risk_level = get_precipitation_risk_level(precip)
     location = analysis_data['location']
     date_str = selected_date.strftime('%d.%m.%Y')
     
@@ -490,7 +501,8 @@ def get_event_specific_recommendations(event_type, analysis_data):
             'details': [
                 'Secure loose items and decorations' if lang_code == "en" else 'Gevşek eşyaları ve dekorasyonları sabitleyin',
                 'Consider wind protection for outdoor setups' if lang_code == "en" else 'Açık hava düzenlemeleri için rüzgar koruması düşünün',
-                'Monitor weather updates for wind gusts' if lang_code == "en" else 'Rüzgar sağanakları için hava durumu güncellemelerini takip edin'
+                'Monitor weather updates for wind gusts' if lang_code == "en" else 'Rüzgar sağanakları için hava durumu güncellemelerini takip edin',
+                'Postpone activities requiring stable conditions' if lang_code == "en" else 'Sabit koşullar gerektiren aktiviteleri erteleyin'
             ]
         })
     elif wind_risk_level == 'medium':
@@ -500,36 +512,220 @@ def get_event_specific_recommendations(event_type, analysis_data):
             'message': f'Moderate wind speed: {wind_speed:.1f} m/s' if lang_code == "en" else f'Orta seviye rüzgar hızı: {wind_speed:.1f} m/s',
             'details': [
                 'Light items may be affected by wind' if lang_code == "en" else 'Hafif eşyalar rüzgardan etkilenebilir',
-                'Consider securing paper materials and light decorations' if lang_code == "en" else 'Kağıt malzemeleri ve hafif dekorasyonları sabitlemeyi düşünün'
+                'Consider securing paper materials and light decorations' if lang_code == "en" else 'Kağıt malzemeleri ve hafif dekorasyonları sabitlemeyi düşünün',
+                'Wind may affect sound quality for outdoor speeches' if lang_code == "en" else 'Rüzgar açık hava konuşmalarında ses kalitesini etkileyebilir'
             ]
         })
     
-    # Event-specific recommendations
-    event_recommendations = {
-        "Düğün": ["Fotoğraf çekimi için yedek iç mekan ayarlayın", "Gelinlik için uygun kumaş seçimi yapın", "Misafirler için şemsiye bulundurun"],
-        "Konser": ["Sahne ekipmanlarını yağmurdan koruyun", "Ses sistemini rüzgar yönüne göre ayarlayın", "Elektrik güvenliği için ekstra önlem alın"],
-        "Festival": ["Çadır alanı için su geçirmez zemin hazırlayın", "Yiyecek stantlarını korunaklı alana kurun", "Acil durum planı oluşturun"],
-        "Spor Etkinliği": ["Saha durumunu sürekli kontrol edin", "Yedek oyun alanı hazır bulundurun", "Seyirci alanı için gölgelik düşünün"],
-        "Açık Hava Partisi": ["Müzik ekipmanlarını koruyun", "Dans alanı için zemin hazırlayın", "Işıklandırma için yedek plan"],
-        "Piknik": ["Piknik alanı seçerken yüksek yerleri tercih edin", "Yiyecekleri yağmurdan koruyun", "Alternatif kapalı alan düşünün"],
-        "İş Toplantısı": ["Toplantı alanı için çadır düşünün", "Sunum ekipmanlarını koruyun", "Misafirler için ulaşım planlayın"],
-        "Diğer": [],
-        "Wedding": ["Arrange a backup indoor venue for photos", "Choose suitable fabric for wedding attire", "Provide umbrellas for guests"],
-        "Concert": ["Protect stage equipment from rain", "Adjust sound system based on wind direction", "Take extra electrical safety measures"],
-        "Sports Event": ["Continuously monitor field conditions", "Keep a backup playing area ready", "Consider shade for spectator areas"],
-        "Festival": ["Prepare waterproof flooring for tents", "Set up food stalls in sheltered areas", "Create an emergency plan"],
-        "Outdoor Party": ["Protect music equipment", "Prepare floor for dance area", "Backup plan for lighting"],
-        "Picnic": ["Choose elevated areas for picnic spot", "Protect food from rain", "Consider alternative indoor space"],
-        "Business Meeting": ["Consider tent for meeting area", "Protect presentation equipment", "Plan transportation for guests"],
-        "Other": []
-    }
+    # Precipitation-specific recommendations
+    if precip_risk_level == 'high':
+        recommendations.append({
+            'type': 'danger',
+            'title': '🌧️ HEAVY RAIN WARNING' if lang_code == "en" else '🌧️ ŞİDDETLİ YAĞMUR UYARISI',
+            'message': f'High precipitation expected: {precip:.1f} mm/day' if lang_code == "en" else f'Yüksek yağış bekleniyor: {precip:.1f} mm/gün',
+            'details': [
+                'Postpone outdoor activities or move indoors' if lang_code == "en" else 'Açık hava aktivitelerini erteleyin veya iç mekana taşıyın',
+                'Ensure proper drainage at venue' if lang_code == "en" else 'Mekanda uygun drenaj olduğundan emin olun',
+                'Prepare for potential flooding in low areas' if lang_code == "en" else 'Alçak bölgelerde olası su baskınlarına hazırlıklı olun',
+                'Have emergency shelters ready' if lang_code == "en" else 'Acil barınaklar hazır bulundurun'
+            ]
+        })
+    elif precip_risk_level == 'medium':
+        recommendations.append({
+            'type': 'warning',
+            'title': '🌦️ LIGHT RAIN POSSIBLE' if lang_code == "en" else '🌦️ HAFİF YAĞMUR OLABİLİR',
+            'message': f'Light to moderate precipitation: {precip:.1f} mm/day' if lang_code == "en" else f'Hafif-orta şiddette yağış: {precip:.1f} mm/gün',
+            'details': [
+                'Have umbrellas and rain covers ready' if lang_code == "en" else 'Şemsiye ve yağmur örtüleri hazır bulundurun',
+                'Protect electronic equipment from moisture' if lang_code == "en" else 'Elektronik ekipmanları nemden koruyun',
+                'Consider temporary shelters or tents' if lang_code == "en" else 'Geçici barınaklar veya çadırlar düşünün',
+                'Prepare for potential schedule adjustments' if lang_code == "en" else 'Olası program değişikliklerine hazırlıklı olun'
+            ]
+        })
     
-    if event_type in event_recommendations and event_recommendations[event_type]:
+    # Temperature-specific recommendations
+    if temp < 10:
+        recommendations.append({
+            'type': 'warning',
+            'title': '🥶 COLD WEATHER ALERT' if lang_code == "en" else '🥶 SOĞUK HAVA UYARISI',
+            'message': f'Cold temperature expected: {temp:.1f}°C' if lang_code == "en" else f'Soğuk sıcaklık bekleniyor: {temp:.1f}°C',
+            'details': [
+                'Provide heating solutions for outdoor areas' if lang_code == "en" else 'Açık alanlar için ısıtma çözümleri sağlayın',
+                'Warm beverages and indoor warming areas recommended' if lang_code == "en" else 'Sıcak içecekler ve kapalı ısınma alanları önerilir',
+                'Inform guests to dress warmly' if lang_code == "en" else 'Misafirlere sıcak giyinmeleri konusunda bilgi verin',
+                'Consider shorter duration for outdoor activities' if lang_code == "en" else 'Açık hava aktiviteleri için daha kısa süre düşünün'
+            ]
+        })
+    elif temp > 30:
+        recommendations.append({
+            'type': 'warning',
+            'title': '🥵 HOT WEATHER ALERT' if lang_code == "en" else '🥵 SICAK HAVA UYARISI',
+            'message': f'Hot temperature expected: {temp:.1f}°C' if lang_code == "en" else f'Sıcak hava bekleniyor: {temp:.1f}°C',
+            'details': [
+                'Provide ample shaded areas and cooling stations' if lang_code == "en" else 'Bol gölgeli alanlar ve serinleme istasyonları sağlayın',
+                'Ensure proper hydration with water stations' if lang_code == "en" else 'Su istasyonları ile uygun hidrasyon sağlayın',
+                'Schedule activities during cooler morning/evening hours' if lang_code == "en" else 'Aktiviteleri daha serin sabah/akşam saatlerine planlayın',
+                'Have medical support for heat-related issues' if lang_code == "en" else 'Isı kaynaklı sorunlar için tıbbi destek hazır bulundurun'
+            ]
+        })
+
+    # GENİŞLETİLMİŞ ETKİNLİK BAZLI ÖNERİLER - EXPANDED EVENT-SPECIFIC RECOMMENDATIONS
+    event_recommendations = {
+        "Düğün": {
+            "low": [
+                "Mükemmel düğün havası! Açık alanda tören için ideal koşullar",
+                "Dış mekan fotoğraf çekimi için harika fırsat",
+                "Misafirler için konforlu bir ortam sağlanacak",
+                "Açık hava resepsiyonu için yeşil ışık"
+            ],
+            "medium": [
+                "Yedek iç mekan planı yapın, hava değişebilir",
+                "Gelinlik ve takım elbise seçimlerinde hava koşullarını dikkate alın",
+                "Misafirler için şemsiye ve hafif yelek bulundurun",
+                "Fotoğraf çekimi için hem iç hem dış mekan planlayın"
+            ],
+            "high": [
+                "KESİNLİKLE iç mekan yedek planı uygulayın",
+                "Düğün programını kısaltmayı düşünün",
+                "Misafir konforu için klima/ısıtma önlemleri alın",
+                "Ulaşımda hava koşullarını dikkate alın"
+            ]
+        },
+        "Konser": {
+            "low": [
+                "Harika konser havası! Açık hava sahnesi için mükemmel",
+                "Ses kalitesi için ideal rüzgar koşulları",
+                "Seyirci konforu üst düzeyde",
+                "Uzun süreli performanslar için uygun"
+            ],
+            "medium": [
+                "Sahne ekipmanlarını koruyucu örtülerle koruyun",
+                "Ses sistemini rüzgar yönüne göre optimize edin",
+                "Seyirci alanında gölgelikler düşünün",
+                "Elektrik güvenliği için ek önlemler alın"
+            ],
+            "high": [
+                "Konseri iptal etmeyi veya kapalı mekana taşımayı düşünün",
+                "Elektrikli ekipmanları yağmurdan koruyun",
+                "Seyirci güvenliği için acil tahliye planı hazırlayın",
+                "Kısa program ve erken bitiş planlayın"
+            ]
+        },
+        "Festival": {
+            "low": [
+                "Festival için mükemmel hava koşulları!",
+                "Tüm gün açık hava etkinlikleri için uygun",
+                "Yiyecek-içecek stantları için ideal",
+                "Katılımın yüksek olması beklenir"
+            ],
+            "medium": [
+                "Çadır alanları için su geçirmez zemin hazırlayın",
+                "Acil yağmur planı oluşturun",
+                "Elektrik hatlarını yalıtımlı koruyun",
+                "İlk yardım istasyonlarını artırın"
+            ],
+            "high": [
+                "Festivali ertelemeyi ciddi olarak düşünün",
+                "Tüm açık hava aktivitelerini iptal edin",
+                "Güvenlik ekibini artırın",
+                "Acildurum iletişim planını devreye alın"
+            ]
+        },
+        "Spor Etkinliği": {
+            "low": [
+                "Spor müsabakaları için ideal koşullar",
+                "Atlet performansı maksimum düzeyde",
+                "Seyirci konforu üst düzeyde",
+                "Uzun süreli müsabakalar için uygun"
+            ],
+            "medium": [
+                "Saha durumunu sürekli kontrol edin",
+                "Molaları sıklaştırın",
+                "Seyirciler için ek su istasyonları kurun",
+                "Hava durumuna göre program esnekliği sağlayın"
+            ],
+            "high": [
+                "Müsabakayı erteleyin veya iptal edin",
+                "Atlet sağlığını ön planda tutun",
+                "Seyirci güvenliği için önlemleri artırın",
+                "Alternatif kapalı mekan planı uygulayın"
+            ]
+        },
+        "Açık Hava Partisi": {
+            "low": [
+                "Parti için mükemmel hava! Tüm planlar uygulanabilir",
+                "Dış mekan dekorasyonları için ideal",
+                "Misafirler rahatça sosyalleşebilir",
+                "Gece saatlerine kadar parti devam edebilir"
+            ],
+            "medium": [
+                "Yedek çadır veya şemsiye bulundurun",
+                "Müzik ekipmanlarını koruyucu örtülerle koruyun",
+                "Hafif yiyecekler tercih edin",
+                "Misafir sayısını sınırlamayı düşünün"
+            ],
+            "high": [
+                "Partiyi kapalı mekana taşıyın",
+                "Kısa süreli bir program planlayın",
+                "Misafirleri önceden bilgilendirin",
+                "Alternatif tarih önerin"
+            ]
+        },
+        "Piknik": {
+            "low": [
+                "Harika piknik havası! Doğayla iç içe keyifli vakit",
+                "Açık ateş için uygun koşullar",
+                "Uzun süreli açık hava aktiviteleri mümkün",
+                "Fotoğraf çekimi için mükemmel ışık"
+            ],
+            "medium": [
+                "Piknik alanı seçerken yüksek ve korunaklı yerleri tercih edin",
+                "Yiyecekleri kapalı kaplarda saklayın",
+                "Acil durum çadırı bulundurun",
+                "Programı esnek tutun"
+            ],
+            "high": [
+                "Pikniği iptal edin veya kapalı mekana taşıyın",
+                "Açık ateş kesinlikle yakmayın",
+                "Islak zeminde kayma riskine karşı dikkatli olun",
+                "Alternatif aktivite planlayın"
+            ]
+        },
+        "İş Toplantısı": {
+            "low": [
+                "Verimli bir açık hava toplantısı için ideal koşullar",
+                "Doğal ortamda yaratıcı fikirler geliştirme fırsatı",
+                "Katılımcı motivasyonu yüksek olacak",
+                "Uzun süreli oturumlar için uygun"
+            ],
+            "medium": [
+                "Yedek kapalı mekan ayarlayın",
+                "Elektronik cihazları koruyucu önlemler alın",
+                "Sunum ekipmanlarını yedekleyin",
+                "Toplantı süresini optimize edin"
+            ],
+            "high": [
+                "Toplantıyı kesinlikle kapalı mekana alın",
+                "Video konferans alternatifi sunun",
+                "Katılımcı ulaşımını yeniden planlayın",
+                "Toplantıyı ertelemeyi düşünün"
+            ]
+        },
+        "Diğer": {
+            "low": ["Mükemmel koşullar - planlarınızı güvenle uygulayın"],
+            "medium": ["Dikkatli olun - yedek planlar yapın"],
+            "high": ["Riskli koşullar - alternatif plan uygulayın"]
+        }
+    }
+
+    # Add event-specific recommendations
+    if event_type in event_recommendations:
+        event_recs = event_recommendations[event_type][risk_level]
         recommendations.append({
             'type': 'info',
-            'title': f'🎪 {event_type.upper()} SPECIFIC RECOMMENDATIONS' if lang_code == "en" else f'🎪 {event_type.upper()} ÖZEL ÖNERİLERİ',
-            'message': f'Extra preparations for {event_type}' if lang_code == "en" else f'{event_type} için ekstra hazırlıklar:',
-            'details': event_recommendations[event_type]
+            'title': f'🎪 {event_type.upper()} ÖZEL ÖNERİLER' if lang_code == "tr" else f'🎪 {event_type.upper()} SPECIFIC RECOMMENDATIONS',
+            'message': f'{event_type} için {risk_level} risk seviyesine göre öneriler:' if lang_code == "tr" else f'Recommendations for {event_type} at {risk_level} risk level:',
+            'details': event_recs
         })
     
     return recommendations
@@ -551,7 +747,7 @@ def create_turkish_map(center_lat=39, center_lon=35, zoom_start=6, selected_coor
     
     return m
 
-# Initialize session state
+# Initialize session state with CURRENT DATE
 if 'selected_lat' not in st.session_state:
     st.session_state.selected_lat = 39.9334
 if 'selected_lon' not in st.session_state:
@@ -563,7 +759,7 @@ if 'manual_lon' not in st.session_state:
 if 'city_name' not in st.session_state:
     st.session_state.city_name = get_city_name(st.session_state.selected_lat, st.session_state.selected_lon)
 if 'selected_date' not in st.session_state:
-    st.session_state.selected_date = today + timedelta(days=30)
+    st.session_state.selected_date = today + timedelta(days=30)  # Always use current date
 if 'analyze' not in st.session_state:
     st.session_state.analyze = False
 if 'analysis_results' not in st.session_state:
@@ -667,7 +863,7 @@ with col2:
         )
         st.session_state.selected_event_type = event_type
         
-        # Date selection 
+        # Date selection with CURRENT DATE reference
         st.markdown(texts['date_select_label'])
         st.markdown(f"<div class='calendar-container'>", unsafe_allow_html=True)
         selected_date = st.date_input(
@@ -679,7 +875,7 @@ with col2:
         )
         st.markdown("</div>", unsafe_allow_html=True)
         
-        # Date information
+        # Date information with CURRENT DATE
         today_str = today.strftime('%d.%m.%Y')
         three_months_str = three_months_later.strftime('%d.%m.%Y')
         ten_years_ago_str = ten_years_ago.strftime('%d.%m.%Y')
@@ -936,7 +1132,7 @@ if st.session_state.get('analyze', False):
                 mime="text/csv"
             )
 
-# Footer
+# Footer with CURRENT DATE
 st.markdown("---")
 today_footer = today.strftime('%d.%m.%Y')
 st.markdown(
