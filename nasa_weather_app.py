@@ -1145,7 +1145,7 @@ st.markdown(
             {texts['footer_note']}{today_footer}
         </p>
         <p style="font-size:0.7em;margin:5px 0 0 0;opacity:0.6;">
-            🤖 AI'dan yararlanılmıştır | 🦇 Timeless Bats
+            🤖 AI was utilized | 🦇 Timeless Bats
         </p>
     </div>
     """,
