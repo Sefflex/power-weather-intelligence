@@ -17,8 +17,4 @@ Açık hava etkinlikleri için tarih bazlı hava tahmin uygulaması.
 
 
 ## DEMO
-<p align="center">
-  <a href="https://demo-linkin-buraya.com" target="_blank">
-    <img src="https://img.shields.io/badge/DEMO-Siteyi%20Aç-blue?style=for-the-badge" />
-  </a>
-</p>
+<p align="center"> <a href="https://powerweatherintelligence.streamlit.app/" target="_blank"> <img src="https://img.shields.io/badge/🔗%20Demo%20Site–PowerWeather%20Intelligence-blue?style=for-the-badge" /> </a> </p>>
